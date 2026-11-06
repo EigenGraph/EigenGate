@@ -2,20 +2,20 @@
 """
 run_all_verifications.py
 ========================
-Skrip verifikasi terpadu satu pintu (single-entry-point runner) untuk repositori
-penelitian disertasi "Adjusted Redundancy Index (ARI)" — Harids Irawan (2026).
+Unified single-entry-point verification runner for the dissertation research repository
+"Adjusted Redundancy Index (ARI)" — Harids Irawan (2026).
 
-Menjalankan seluruh suite pengujian deterministik dan verifikasi berlapis:
-  1. Verifikasi Solver Referensi Rangka Batang (Tabel 13 / Tabel 4.1)
-  2. Tutorial Rantai Komputasi ARI Dua Batang (Tabel 25 / Tabel 4.11)
-  3. Pengujian Inti Mesin ARI & Invariansi Satuan (Tabel 15 / Tabel 4.3)
-  4. Verifikasi Pengaman Kinematik SVD (Persamaan 4.1–4.7 & Tabel 16 / Tabel 4.4)
-  5. Pengujian Batas Praanalisis & Audit Anti-Kebocoran Informasi (Leakage Audit)
-  6. Suite Verifikasi Kanonik Penuh (68/68 Pemeriksaan Otomatis)
-  7. Verifikasi Paket Pengaman & Diagnostik Parametrik 16 Model (272 Skenario)
-  8. Suite Uji Analitis Solver Elemen Hingga Multi-Keluarga (S1–S5)
+Executes the full deterministic test and layered verification suite:
+  1. Axial Truss Reference Solver Verification (Table 13 / Table 4.1)
+  2. Two-Bar Computational Chain Tutorial (Table 25 / Table 4.11)
+  3. ARI Core Engine & Unit Invariance Test (Table 15 / Table 4.3)
+  4. SVD Kinematic Guard Verification (Eqs. 4.1–4.7 & Table 16 / Table 4.4)
+  5. Pre-Analysis Bound & Anti-Information Leakage Audit
+  6. Full Canonical Verification Suite (68/68 Automated Checks)
+  7. Safeguard Package & 16 Parametric Models Verification (272 Scenarios)
+  8. Multi-Family Finite Element Solver Test Suite (S1–S5)
 
-Cara menjalankan dari root repositori:
+How to run from repository root:
     python3 run_all_verifications.py
 """
 
@@ -28,23 +28,23 @@ ROOT_DIR = Path(__file__).resolve().parent
 EXAMPLES_DIR = ROOT_DIR / "examples"
 
 VERIFICATION_SUITE = [
-    ("1. Solver Referensi Batang Aksial (M1–M4)", "test_truss_reference.py"),
-    ("2. Tutorial Analitis Dua Batang Paralel", "ari_tutorial.py"),
-    ("3. Mesin Inti ARI & Invariansi Konversi Satuan", "test_ari.py"),
-    ("4. Pengaman Kinematik Berbasis SVD (h_e)", "mechanical_guard.py"),
-    ("5. Batas Praanalisis (Bound Enhancement)", "test_bound_enhancement.py"),
-    ("6. Audit Anti-Kebocoran Informasi (Leakage Audit)", "test_leakage_audit.py"),
-    ("7. Verifikasi Kanonik Penuh (68/68 Pemeriksaan)", "run_verification.py"),
-    ("8. Diagnostik Pengaman & 16 Model Parametrik (272 Skenario)", "run_guard_verification.py"),
-    ("9. Solver Elemen Hingga Multi-Keluarga (S1–S5)", "test_structural_solvers.py"),
-    ("10. Validasi Penuh ARI v2 pada 300 Model Induk (S1–S5)", "run_screening_v2.py"),
-    ("11. Integrasi Penapisan ARI v2–GNN (StructGNN-CRC v1.0)", "run_gnn_integration_s6.py"),
+    ("1. Axial Truss Reference Solver (M1–M4)", "test_truss_reference.py"),
+    ("2. Analytical Two-Bar Parallel Tutorial", "ari_tutorial.py"),
+    ("3. ARI Core Engine & Unit Invariance", "test_ari.py"),
+    ("4. SVD Kinematic Guard (h_e)", "mechanical_guard.py"),
+    ("5. Pre-Analysis Bounds (Bound Enhancement)", "test_bound_enhancement.py"),
+    ("6. Information Anti-Leakage Audit", "test_leakage_audit.py"),
+    ("7. Full Canonical Verification (68/68 Checks)", "run_verification.py"),
+    ("8. Safeguard Diagnostics & 16 Parametric Models (272 Scenarios)", "run_guard_verification.py"),
+    ("9. Multi-Family Finite Element Solver (S1–S5)", "test_structural_solvers.py"),
+    ("10. Full Validation of ARI v2 on 300 Parent Models (S1–S5)", "run_screening_v2.py"),
+    ("11. Screening Integration ARI v2–GNN (StructGNN-CRC v1.0)", "run_gnn_integration_s6.py"),
 ]
 
 
 def main() -> int:
     print("=" * 78)
-    print("SUITE VERIFIKASI TERPADU — ADJUSTED REDUNDANCY INDEX (ARI)")
+    print("UNIFIED VERIFICATION SUITE — ADJUSTED REDUNDANCY INDEX (ARI)")
     print("=" * 78)
 
     results = []
@@ -52,7 +52,7 @@ def main() -> int:
 
     for label, script_name in VERIFICATION_SUITE:
         script_path = EXAMPLES_DIR / script_name
-        print(f"\n>>> Menjalankan {label} ({script_name})...")
+        print(f"\n>>> Running {label} ({script_name})...")
         t0 = time.perf_counter()
         proc = subprocess.run(
             [sys.executable, str(script_path)],
@@ -62,13 +62,13 @@ def main() -> int:
         )
         dt = time.perf_counter() - t0
         passed = proc.returncode == 0
-        status_str = "LULUS (PASS)" if passed else f"GAGAL (EXIT {proc.returncode})"
-        print(f"    Status: {status_str} [{dt:.2f} dtk]")
+        status_str = "PASSED" if passed else f"FAILED (EXIT {proc.returncode})"
+        print(f"    Status: {status_str} [{dt:.2f} s]")
         if not passed:
             print("    --- STDOUT ---")
-            print(proc.stdout[-1200:] if proc.stdout else "(kosong)")
+            print(proc.stdout[-1200:] if proc.stdout else "(empty)")
             print("    --- STDERR ---")
-            print(proc.stderr[-1200:] if proc.stderr else "(kosong)")
+            print(proc.stderr[-1200:] if proc.stderr else "(empty)")
         results.append((label, script_name, passed, dt))
 
     total_dt = time.perf_counter() - t0_all
@@ -76,15 +76,15 @@ def main() -> int:
     n_total = len(results)
 
     print("\n" + "=" * 78)
-    print("RINGKASAN HASIL VERIFIKASI REPOSITORI ARI")
+    print("VERIFICATION RESULTS SUMMARY — ARI REPOSITORY")
     print("=" * 78)
-    print(f"{'Tahap Verifikasi':<52} | {'Status':<12} | {'Waktu':>8}")
+    print(f"{'Verification Stage':<52} | {'Status':<12} | {'Time':>8}")
     print("-" * 78)
     for label, _, ok, dt in results:
-        st = "LULUS" if ok else "GAGAL"
+        st = "PASSED" if ok else "FAILED"
         print(f"{label:<52} | {st:<12} | {dt:>6.2f} s")
     print("-" * 78)
-    print(f"Total Tahap Lulus: {n_pass}/{n_total} | Total Waktu Eksekusi: {total_dt:.2f} detik")
+    print(f"Total Passed Stages: {n_pass}/{n_total} | Total Execution Time: {total_dt:.2f} seconds")
     print("=" * 78)
 
     return 0 if n_pass == n_total else 1
